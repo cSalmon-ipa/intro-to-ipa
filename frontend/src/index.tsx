@@ -10,6 +10,7 @@ import { TemplateComponent } from 'components/TemplateComponent';
 import { MainContainer } from 'containers/MainContainer';
 import { NotFound } from 'pages/NotFound';
 import { PageOne } from 'pages/PageOne';
+import { PageTwo } from 'pages/PageTwo';
 
 import './index.css';
 
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
 			{
 				path: '/One',
 				element: <PageOne />,
+			},
+			{
+				path: '/Two',
+				element: <PageTwo />,
 			},
 		],
 	},

@@ -29,6 +29,7 @@ const resolve = {
 export default defineConfig(({ mode }) => {
 	const env = loadEnv(mode, process.cwd(), '');
 	const target = env.VITE_API_TARGET;
+	console.log(target);
 	let appUrl = target;
 
 	if (mode === 'UAT') {
