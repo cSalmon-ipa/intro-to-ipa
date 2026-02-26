@@ -1,0 +1,164 @@
+{
+	"root": true,
+	"parser": "@typescript-eslint/parser",
+	"extends": [
+		"eslint:recommended",
+		"plugin:react/jsx-runtime",
+		"plugin:react-hooks/recommended",
+		"plugin:@typescript-eslint/eslint-recommended",
+		"plugin:@typescript-eslint/recommended",
+		"plugin:@tanstack/eslint-plugin-query/recommended",
+		"plugin:import/recommended",
+		"plugin:import/typescript",
+		"plugin:jsx-a11y/recommended",
+		"prettier"
+	],
+	"parserOptions": {
+		"ecmaVersion": 2018,
+		"sourceType": "module",
+		"ecmaFeatures": {
+			"jsx": true
+		}
+	},
+	"plugins": [
+		"@typescript-eslint",
+		"react-compiler",
+		"prettier"
+	],
+	"rules": {
+		"no-else-return": [
+			"error",
+			{
+				"allowElseIf": true
+			}
+		],
+		"no-param-reassign": "off",
+		"no-multi-spaces": "warn",
+		"no-console": "warn",
+		"no-unused-vars": "off",
+		"arrow-body-style": [
+			"error",
+			"as-needed"
+		],
+		"prettier/prettier": [
+			"error",
+			{
+				"plugins": [
+					"prettier-plugin-organize-imports",
+					"prettier-plugin-tailwindcss"
+				],
+				"semi": true,
+				"trailingComma": "all",
+				"singleQuote": true,
+				"jsxSingleQuote": true,
+				"bracketSameLine": false,
+				"printWidth": 80,
+				"tabWidth": 2,
+				"useTabs": true
+			}
+		],
+		"react/jsx-props-no-spreading": "off",
+		"react/jsx-pascal-case": "error",
+		"react/jsx-no-script-url": "error",
+		"react/jsx-no-leaked-render": [
+			"error",
+			{
+				"validStrategies": [
+					"ternary"
+				]
+			}
+		],
+		"react/jsx-max-depth": [
+			"error",
+			{
+				"max": 10
+			}
+		],
+		"react/jsx-fragments": "error",
+		"react/jsx-no-useless-fragment": "warn",
+		"react/jsx-curly-brace-presence": "warn",
+		"react/jsx-sort-props": "warn",
+		"react/jsx-one-expression-per-line": "off",
+		"react/jsx-key": [
+			"error",
+			{
+				"checkFragmentShorthand": true,
+				"checkKeyMustBeforeSpread": true,
+				"warnOnDuplicates": true
+			}
+		],
+		"react/jsx-filename-extension": [
+			2,
+			{
+				"extensions": [
+					".js",
+					".jsx",
+					".ts",
+					".tsx"
+				]
+			}
+		],
+		"react/function-component-definition": [
+			2,
+			{
+				"namedComponents": "arrow-function"
+			}
+		],
+		"react/destructuring-assignment": [
+			"error",
+			"always",
+			{
+				"destructureInSignature": "always"
+			}
+		],
+		"react/prefer-stateless-function": "error",
+		"react/button-has-type": "error",
+		"react/no-unused-prop-types": "error",
+		"react/no-children-prop": "error",
+		"react/no-danger": "error",
+		"react/no-danger-with-children": "error",
+		"react/no-unstable-nested-components": [
+			"error",
+			{
+				"allowAsProps": true
+			}
+		],
+		"react/no-typos": "warn",
+		"react/display-name": "warn",
+		"react/self-closing-comp": "warn",
+		"react/react-in-jsx-scope": "off",
+		"react/prop-types": "off",
+		"react/prefer-read-only-props": "error",
+		"react-hooks/exhaustive-deps": "off",
+		"react-compiler/react-compiler": "error",
+		"@typescript-eslint/naming-convention": [
+			"error",
+			{
+				"selector": "variable",
+				"format": [
+					"camelCase",
+					"UPPER_CASE",
+					"PascalCase"
+				]
+			},
+			{
+				"selector": "typeLike",
+				"format": [
+					"PascalCase"
+				]
+			}
+		],
+		"@typescript-eslint/no-unused-vars": "error",
+		"@typescript-eslint/no-shadow": "error",
+		"@tanstack/query/exhaustive-deps": "off",
+		"import/extensions": "off",
+		"import/no-unresolved": "off",
+		"import/no-default-export": "error",
+		"jsx-a11y/anchor-is-valid": "off"
+	},
+	"settings": {
+		"react": {
+			"version": "detect"
+		}
+	}
+}

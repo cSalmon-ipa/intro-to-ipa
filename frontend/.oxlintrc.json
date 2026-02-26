@@ -1,0 +1,167 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": ["typescript", "react", "jsx-a11y", "import", "vitest", "unicorn"],
+	"categories": {
+		"correctness": "error",
+		"perf": "warn"
+	},
+	"env": {
+		"builtin": true,
+		"es2018": true,
+		"browser": true,
+		"shared-node-browser": true
+	},
+	"rules": {
+		"jsx-a11y/anchor-ambiguous-text": "warn",
+		"jsx-a11y/anchor-is-valid": "warn",
+		"jsx-a11y/prefer-tag-over-role": "warn",
+		"unicorn/no-useless-spread": "warn",
+		"no-case-declarations": "error",
+		"no-compare-neg-zero": "error",
+		"no-constant-binary-expression": "error",
+		"no-empty": "error",
+		"no-fallthrough": "error",
+		"no-prototype-builtins": "error",
+		"no-redeclare": "error",
+		"no-regex-spaces": "error",
+		"no-unexpected-multiline": "off",
+		"no-unused-vars": [
+			"error",
+			{
+				"argsIgnorePattern": "^_",
+				"varsIgnorePattern": "^_",
+				"caughtErrorsIgnorePattern": "^_"
+			}
+		],
+		"no-console": "warn",
+		"no-useless-constructor": "error",
+		"no-array-constructor": "error",
+		"no-empty-function": "error",
+		"no-else-return": "error",
+		"require-await": "error",
+		"prefer-promise-reject-errors": "error",
+		"typescript/ban-ts-comment": "error",
+		"typescript/ban-tslint-comment": "error",
+		"typescript/no-dynamic-delete": "error",
+		"typescript/no-empty-object-type": "error",
+		"typescript/no-explicit-any": "error",
+		"typescript/no-extraneous-class": "error",
+		"typescript/no-namespace": "error",
+		"typescript/no-non-null-asserted-nullish-coalescing": "error",
+		"typescript/no-non-null-assertion": "error",
+		"typescript/no-require-imports": "error",
+		"typescript/no-unnecessary-type-constraint": "error",
+		"typescript/no-unsafe-function-type": "error",
+		"typescript/prefer-literal-enum-member": "error",
+		"typescript/adjacent-overload-signatures": "error",
+		"typescript/array-type": "error",
+		"typescript/consistent-generic-constructors": "error",
+		"typescript/consistent-indexed-object-style": "error",
+		"typescript/consistent-type-definitions": ["error", "type"],
+		"typescript/no-confusing-non-null-assertion": "error",
+		"typescript/no-inferrable-types": "error",
+		"typescript/prefer-for-of": "error",
+		"typescript/prefer-function-type": "error",
+		"jsx-a11y/no-noninteractive-tabindex": [
+			"error",
+			{
+				"tags": [],
+				"roles": ["tabpanel"],
+				"allowExpressionValues": true
+			}
+		],
+		"import/no-named-as-default": "error",
+		"import/no-named-as-default-member": "error",
+		"import/no-duplicates": "error",
+		"import/no-default-export": "error",
+		"react/jsx-key": [
+			"error",
+			{
+				"checkFragmentShorthand": true,
+				"checkKeyMustBeforeSpread": true,
+				"warnOnDuplicates": true
+			}
+		],
+		"react/jsx-no-comment-textnodes": "error",
+		"react/no-unescaped-entities": "error",
+		"react/no-unknown-property": "error",
+		"react/jsx-no-script-url": "error",
+		"react/jsx-no-useless-fragment": "error",
+		"react/jsx-curly-brace-presence": "warn",
+		"react/jsx-filename-extension": [
+			"error",
+			{
+				"extensions": [".jsx", ".tsx"]
+			}
+		],
+		"react/button-has-type": "error",
+		"react/no-danger": "error",
+		"react/self-closing-comp": "error",
+		"react/exhaustive-deps": "off",
+		"react/react-in-jsx-scope": "off",
+		"react-hooks/rules-of-hooks": "error",
+		"unicorn/empty-brace-spaces": "off",
+		"unicorn/no-nested-ternary": "off",
+		"unicorn/prefer-includes": "error",
+		"unicorn/number-literal-case": "off"
+	},
+	"ignorePatterns": [
+		"lingui.config.js",
+		"eslint.config.js",
+		"tailwind.config.js",
+		"postcss.config.js",
+		"vite.config.ts",
+		"dist",
+		"node_modules"
+	],
+	"globals": {
+		"afterAll": "readonly",
+		"afterEach": "readonly",
+		"assert": "readonly",
+		"assertType": "readonly",
+		"beforeAll": "readonly",
+		"beforeEach": "readonly",
+		"chai": "readonly",
+		"describe": "readonly",
+		"expect": "readonly",
+		"expectTypeOf": "readonly",
+		"it": "readonly",
+		"onTestFailed": "readonly",
+		"onTestFinished": "readonly",
+		"suite": "readonly",
+		"test": "readonly",
+		"vi": "readonly",
+		"vitest": "readonly",
+		"NodeJS": "writeable",
+		"__VERSION__": "writeable"
+	},
+	"overrides": [
+		{
+			"files": ["./**/*.(js|ts|jsx|tsx)"],
+			"globals": {
+				"afterAll": "readonly",
+				"afterEach": "readonly",
+				"assert": "readonly",
+				"assertType": "readonly",
+				"beforeAll": "readonly",
+				"beforeEach": "readonly",
+				"chai": "readonly",
+				"describe": "readonly",
+				"expect": "readonly",
+				"expectTypeOf": "readonly",
+				"it": "readonly",
+				"onTestFailed": "readonly",
+				"onTestFinished": "readonly",
+				"suite": "readonly",
+				"test": "readonly",
+				"vi": "readonly",
+				"vitest": "readonly",
+				"NodeJS": "writeable",
+				"__VERSION__": "writeable"
+			},
+			"env": {
+				"es2025": true
+			}
+		}
+	]
+}

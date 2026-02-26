@@ -1,0 +1,14 @@
+build
+dist
+coverage
+node_modules
+public
+*.html
+*.json
+*.geojson
+*.md
+*.css
+eslint.config.js
+lingui.config.ts
+src/i18n/**/*
+pnpm-lock.yaml
