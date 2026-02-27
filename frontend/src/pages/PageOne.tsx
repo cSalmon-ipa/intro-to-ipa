@@ -1,7 +1,9 @@
 import { useState } from 'react';
 
 import { useDemo } from 'actions/DemoAction';
-import { Modal, Table, TemplateComponent } from 'components/TemplateComponent';
+import { Modal } from 'components/Modal';
+import { Table } from 'components/Table';
+import { TemplateComponent } from 'components/TemplateComponent';
 
 export const PageOne = () => {
 	const [isOpen, setModalState] = useState(false);

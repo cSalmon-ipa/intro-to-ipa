@@ -24,10 +24,11 @@ export const useDemo = () => {
 	});
 };
 
-//post demoPerson data into database
-export const PostDemo = () => {
-	return useQuery({
-		queryKey: ['demo'], //add new person info in body
-		queryFn: () => apiCall({ path: '/api/demo/', method: 'POST', body: '', schema: demoSchema }),
-	});
-};
+// //post demoPerson data into database
+// export const createDemoPerson = (contentBody: string) => {
+// 	return useQuery({
+// 		queryKey: ['createDemoPerson', contentBody],
+// 		queryFn: () => apiCall({ path: '/api/create-demoPerson/', method: 'POST', body: contentBody, schema: demoSchema }),
+// 		enabled: false,
+// 	});
+// };

@@ -14,6 +14,19 @@ export const PageTwo = () => {
 	const location = useLocation();
 	const person = location.state as Person | undefined;
 	const [isEdit, setIsEdit] = useState(false);
+	const [formData, setFormData] = useState({ username: '', name: '', age: 0 });
+
+	const handleUsernameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setFormData({ ...formData, username: e.target.value });
+	};
+
+	const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setFormData({ ...formData, name: e.target.value });
+	};
+
+	const handleAgeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setFormData({ ...formData, age: e.target.valueAsNumber });
+	};
 
 	return (
 		<div>
@@ -44,15 +57,22 @@ export const PageTwo = () => {
 							<input
 								className='border--black border-2'
 								id='introToIPA-pageTwo-editDemoPerson-inputUsername'
+								onChange={handleUsernameInput}
 								type='email'
 							/>
 							<span className='block text-sm font-medium text-slate-700'>Name</span>
-							<input className='border--black border-2' id='introToIPA-pageTwo-editDemoPerson-inputName' type='text' />
+							<input
+								className='border--black border-2'
+								id='introToIPA-pageTwo-editDemoPerson-inputName'
+								onChange={handleNameInput}
+								type='text'
+							/>
 							<span className='block text-sm font-medium text-slate-700'>Age</span>
 							<input
 								className='border--black border-2'
 								id='introToIPA-pageTwo-editDemoPerson-inputAge'
 								min={0}
+								onChange={handleAgeInput}
 								type='number'
 							/>
 							{/* make sure you can't manually put in lower tha 0 */}
