@@ -17,6 +17,14 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 			? { username: editData?.username, name: editData?.name, age: editData?.age }
 			: { username: '', name: '', age: 0 },
 	);
+	const [err, setErr] = useState({
+		usernameError: false,
+		usernameErrorMsg: '',
+		nameError: false,
+		nameErrorMsg: '',
+		ageError: false,
+		ageErrorMsg: '',
+	});
 	const pageLoaded = isEdit ? document.getElementById('pageTwo') : document.getElementById('pageOne');
 	const required = isEdit ? false : true;
 	const { mutate: createRecord } = useApiCreateCall();
@@ -37,26 +45,73 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 		setModalState(false);
 	};
 
+	const validateAge = (age: number | undefined) => {
+		if (age === undefined) {
+			setErr({ ...err, ageError: true, ageErrorMsg: 'Age must have a value' });
+		} else if (age < 0) {
+			setErr({ ...err, ageError: true, ageErrorMsg: 'Age cannot be negative value' });
+		} else {
+			setErr({ ...err, ageError: false, ageErrorMsg: '' });
+		}
+	};
+	const validateName = (name: string | undefined) => {
+		if (name === '' || name === undefined) {
+			setErr({ ...err, nameError: true, nameErrorMsg: 'Name is required' });
+		} else {
+			setErr({ ...err, nameError: false, nameErrorMsg: '' });
+		}
+	};
+	const validateUsername = (username: string | undefined) => {
+		const syntax = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+		if (username === '' || username === undefined) {
+			setErr({ ...err, usernameError: true, usernameErrorMsg: 'Username is required' });
+		} else if (!syntax.test(username)) {
+			setErr({ ...err, usernameError: true, usernameErrorMsg: 'Invalid syntax for username' });
+		} else {
+			setErr({ ...err, usernameError: false, usernameErrorMsg: '' });
+		}
+	};
+
 	// If editing, updates record. Else, creates new record
 	const handleSaveButton = () => {
 		if (isEdit) {
 			if (editData?.id) {
 				const body: Record<string, string | number> = {};
 
-				if (formData.username && formData.username !== editData.username) body.username = formData.username;
-				if (formData.name && formData.name !== editData.name) body.name = formData.name;
-				if (formData.age && formData.age !== editData.age) body.age = formData.age;
-				updateRecord(body);
+				if (formData.username && formData.username !== editData.username) {
+					body.username = formData.username.trim();
+					validateUsername(body.username);
+				}
+				if (formData.name && formData.name !== editData.name) {
+					body.name = formData.name.trim();
+					validateName(body.name);
+				}
+				if (formData.age && formData.age !== editData.age) {
+					body.age = parseInt(formData.age.toString().replace(/^0+(?=\d)/, ''));
+					validateAge(body.age);
+				}
+				if (!err.ageError && !err.nameError && !err.usernameError) {
+					updateRecord(body);
+				}
 			}
 		} else {
 			const body = {
-				username: formData.username,
-				name: formData.name,
+				username: formData.username?.trim(),
+				name: formData.name?.trim(),
 				age: formData.age,
 			};
-			createRecord(body);
+
+			validateUsername(formData.username?.trim());
+			validateName(formData.name?.trim());
+			validateAge(formData.age);
+
+			if (!err.ageError && !err.nameError && !err.usernameError) {
+				createRecord(body);
+			}
 		}
-		handleCloseModal();
+		if (!err.ageError && !err.nameError && !err.usernameError) {
+			handleCloseModal();
+		}
 	};
 
 	const handleUsernameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,20 +126,18 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 		setFormData({ ...formData, age: e.target.valueAsNumber });
 	};
 
-	// Objective 3 Form should check for:
-	// 	- duplicate entries?
-	// 	- valid email address
-	// 	- valid age
-	//  - valid name
-	//  - trim all spaces
-
 	return createPortal(
 		<div
-			className='absolute left-1/2 top-1/2 flex size-80 -translate-x-1/2 -translate-y-1/2 items-center justify-center border-4 border-b-black bg-slate-200'
+			className='absolute left-1/2 top-1/2 flex h-auto w-80 -translate-x-1/2 -translate-y-1/2 items-center justify-center border-4 border-b-black bg-slate-200 py-8'
 			id='introToIPA-pageOne-createDemoPersonModal'
 		>
 			<div className='h-fit'>
-				<form id='introToIPA-pageOne-createDemoPersonForm'>
+				<form
+					id='introToIPA-pageOne-createDemoPersonForm'
+					onSubmit={() => {
+						handleSaveButton();
+					}}
+				>
 					<div className='mb-5'>
 						{isEdit ? <span>ID: {editData?.id} </span> : null}
 						<label
@@ -94,14 +147,18 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 							Username
 						</label>
 						<input
-							className='block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500'
+							className='block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
 							id='introToIPA-pageOne-createDemoPerson-inputUsername'
+							onBlur={() => {
+								validateUsername(formData.username);
+							}}
 							onChange={handleUsernameInput}
 							placeholder='name@provider.com'
 							required={required}
 							type='email'
 							value={formData.username}
 						/>
+						{err.usernameError ? <span className='text-red-400'>{err.usernameErrorMsg}</span> : null}
 					</div>
 					<div className='mb-5'>
 						<label
@@ -111,14 +168,18 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 							Name
 						</label>
 						<input
-							className='block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500'
+							className='block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
 							id='introToIPA-pageOne-createDemoPerson-inputName'
+							onBlur={() => {
+								validateName(formData.name);
+							}}
 							onChange={handleNameInput}
 							placeholder='John Doe'
 							required={required}
 							type='text'
 							value={formData.name}
 						/>
+						{err.nameError ? <span className='text-red-400'>{err.nameErrorMsg}</span> : null}
 					</div>
 					<div className='mb-5'>
 						<label
@@ -128,15 +189,19 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 							Age
 						</label>
 						<input
-							className='block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500'
+							className='block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
 							id='introToIPA-pageOne-createDemoPerson-inputAge'
 							min={0}
+							onBlur={() => {
+								validateAge(formData.age);
+							}}
 							onChange={handleAgeInput}
 							placeholder='0'
 							required={required}
 							type='number'
 							value={formData.age}
 						/>
+						{err.ageError ? <span className='text-red-400'>{err.ageErrorMsg}</span> : null}
 					</div>
 					{/* make sure you can't manually put in lower tha 0 */}
 
@@ -154,9 +219,6 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 						<button
 							className='w-25 rounded-lg bg-green-400 px-5 py-2 text-center text-white hover:bg-green-450'
 							id='introToIPA-pageOne-createDemoPerson-saveButton'
-							onClick={() => {
-								handleSaveButton();
-							}}
 							type='submit'
 						>
 							Save
