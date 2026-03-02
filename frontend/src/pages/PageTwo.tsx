@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router';
 
+import { useDemoByID } from 'actions/DemoAction';
+import { Modal } from 'components/Modal';
 import { TemplateComponent } from 'components/TemplateComponent';
 
-type Person = {
+export type Person = {
 	id: number;
 	username: string;
 	name: string;
@@ -12,33 +14,28 @@ type Person = {
 
 export const PageTwo = () => {
 	const location = useLocation();
-	const person = location.state as Person | undefined;
+	const id = location.state as number | undefined;
 	const [isEdit, setIsEdit] = useState(false);
-	const [formData, setFormData] = useState({ username: '', name: '', age: 0 });
-
-	const handleUsernameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData({ ...formData, username: e.target.value });
-	};
-
-	const handleNameInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData({ ...formData, name: e.target.value });
-	};
-
-	const handleAgeInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setFormData({ ...formData, age: e.target.valueAsNumber });
-	};
-
+	const isId = id ? true : false;
+	const { data } = useDemoByID(id?.toString() ?? '', isId);
 	return (
-		<div>
+		<div id='pageTwo'>
 			<div className='bg-orange-400' data-testid='PageTwo' id='PageTwo'>
 				<TemplateComponent content='PageTwo' />
 			</div>
-			{!person ? null : !isEdit ? (
+			{!data?.data ? (
 				<div>
-					<p>ID: {person.id}</p>
-					<p>Username: {person.username}</p>
-					<p>Name: {person.name}</p>
-					<p>Age: {person.age}</p>
+					<p>ID: </p>
+					<p>Username: </p>
+					<p>Name: </p>
+					<p>Age: </p>
+				</div>
+			) : (
+				<div>
+					<p>ID: {id}</p>
+					<p>Username: {data.data.username}</p>
+					<p>Name: {data.data.name}</p>
+					<p>Age: {data.data.age}</p>
 					<button
 						className='rounded-none bg-sky-400'
 						onClick={() => {
@@ -48,58 +45,7 @@ export const PageTwo = () => {
 					>
 						Edit
 					</button>
-				</div>
-			) : (
-				<div>
-					<form>
-						<label className='block'>
-							<span className='block text-sm font-medium text-slate-700'>Username</span>
-							<input
-								className='border--black border-2'
-								id='introToIPA-pageTwo-editDemoPerson-inputUsername'
-								onChange={handleUsernameInput}
-								type='email'
-							/>
-							<span className='block text-sm font-medium text-slate-700'>Name</span>
-							<input
-								className='border--black border-2'
-								id='introToIPA-pageTwo-editDemoPerson-inputName'
-								onChange={handleNameInput}
-								type='text'
-							/>
-							<span className='block text-sm font-medium text-slate-700'>Age</span>
-							<input
-								className='border--black border-2'
-								id='introToIPA-pageTwo-editDemoPerson-inputAge'
-								min={0}
-								onChange={handleAgeInput}
-								type='number'
-							/>
-							{/* make sure you can't manually put in lower tha 0 */}
-						</label>
-						<div>
-							<button
-								className='rounded-none bg-red-400'
-								id='introToIPA-pageTwo-editDemoPerson-cancelButton'
-								onClick={() => {
-									setIsEdit(false);
-								}}
-								type='button'
-							>
-								Cancel
-							</button>
-							<button
-								className='rounded-none bg-green-400'
-								id='introToIPA-pageTwo-editDemoPerson-saveButton'
-								onClick={() => {
-									setIsEdit(false);
-								}}
-								type='submit'
-							>
-								Save
-							</button>
-						</div>
-					</form>
+					{isEdit ? <Modal editData={data.data} isOpen={isEdit} setModalState={setIsEdit} /> : null}
 				</div>
 			)}
 		</div>

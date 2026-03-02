@@ -7,8 +7,6 @@ import { TemplateComponent } from 'components/TemplateComponent';
 
 export const PageOne = () => {
 	const [isOpen, setModalState] = useState(false);
-	// const {isLoading, error, data} = useDemo();
-	// if (error) console.log(error);
 	const { isLoading, data } = useDemo();
 
 	return (

@@ -32,8 +32,16 @@ const router = createBrowserRouter([
 				element: <PageOne />,
 			},
 			{
-				path: '/Two',
-				element: <PageTwo />,
+				children: [
+					{
+						path: '/Two/:id',
+						element: <PageTwo />,
+					},
+					{
+						path: '/Two',
+						element: <PageTwo />,
+					},
+				],
 			},
 		],
 	},

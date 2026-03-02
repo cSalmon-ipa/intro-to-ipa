@@ -1,3 +1,5 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+
 import { Link } from 'react-router';
 
 type TableProps = {
@@ -10,8 +12,27 @@ type TableProps = {
 };
 
 export const Table = ({ data }: TableProps) => {
-	//FIX PROPERTY TYPE LATER
 	const headers = Object.keys(data[0]);
+	const queryClient = useQueryClient();
+
+	const apiDeleteCall = useMutation({
+		mutationFn: (id: number) =>
+			fetch(`/api/delete-demoPerson/${id.toString()}`, {
+				method: 'DELETE',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(id),
+			}),
+		onSuccess: async () => {
+			await queryClient.invalidateQueries({ queryKey: ['demo'] });
+		},
+	});
+
+	const handleDeleteButton = (id: number) => {
+		if (window.confirm('Are you sure you want to delete this user?')) {
+			// mutate(id);
+			apiDeleteCall.mutate(id);
+		}
+	};
 
 	return (
 		<div data-testid='table' id='table'>
@@ -33,18 +54,20 @@ export const Table = ({ data }: TableProps) => {
 								<Link
 									className='font-bold text-blue-600 underline'
 									id='introToIPA-pageOne-demoPersonTable-Link'
-									state={person}
-									to='/Two'
+									state={person.id}
+									to={`/Two/${person.id.toString()}`}
 								>
 									{person.name}
 								</Link>
 							</td>
 							<td>{person.age}</td>
 							<td>
-								{/* make confirmation screen */}
 								<button
 									className='rounded-none bg-red-400'
 									id='introToIPA-pageOne-demoPersonTable-removeDemoPerson'
+									onClick={() => {
+										handleDeleteButton(person.id);
+									}}
 									type='button'
 								>
 									DELETE

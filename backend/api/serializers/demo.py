@@ -8,7 +8,14 @@ class DemoSerializer(serializers.ModelSerializer):
 		model = DemoPerson
 		fields = ["id", "username", "name", "age"]
 
+
 class CreateDemoPersonSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = DemoPerson
+		fields = ("username", "name", "age")
+
+
+class UpdateDemoPersonSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = DemoPerson
 		fields = ("username", "name", "age")

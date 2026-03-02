@@ -1,14 +1,26 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
 
+import { useApiCreateCall, useApiUpdateCall } from 'actions/DemoAction';
+import { Person } from 'pages/PageTwo';
+
 type ModalProps = {
 	setModalState: React.Dispatch<React.SetStateAction<boolean>>;
 	isOpen: boolean;
+	editData?: Person; // Data to be edited if accessed by Edit button on Page 2
 };
 
-export const Modal = ({ setModalState, isOpen }: ModalProps) => {
-	const [formData, setFormData] = useState({ username: '', name: '', age: 0 });
-	const pageLoaded = document.getElementById('pageOne');
+export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
+	const isEdit = editData ? true : false;
+	const [formData, setFormData] = useState(
+		isEdit
+			? { username: editData?.username, name: editData?.name, age: editData?.age }
+			: { username: '', name: '', age: 0 },
+	);
+	const pageLoaded = isEdit ? document.getElementById('pageTwo') : document.getElementById('pageOne');
+	const required = isEdit ? false : true;
+	const { mutate: createRecord } = useApiCreateCall();
+	const { mutate: updateRecord } = useApiUpdateCall(editData?.id.toString() ?? '');
 
 	if (pageLoaded) {
 		if (isOpen) {
@@ -17,30 +29,33 @@ export const Modal = ({ setModalState, isOpen }: ModalProps) => {
 	}
 
 	const handleCloseModal = () => {
-		const pageLoaded = document.getElementById('pageOne');
+		const pageLoadedClose = isEdit ? document.getElementById('pageTwo') : document.getElementById('pageOne');
 
-		if (pageLoaded) {
-			pageLoaded.style.filter = 'blur(0px)';
+		if (pageLoadedClose) {
+			pageLoadedClose.style.filter = 'blur(0px)';
 		}
 		setModalState(false);
 	};
 
-	const handleSaveButton = async () => {
-		console.log(formData);
-		const requestOptions = {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
+	// If editing, updates record. Else, creates new record
+	const handleSaveButton = () => {
+		if (isEdit) {
+			if (editData?.id) {
+				const body: Record<string, string | number> = {};
+
+				if (formData.username && formData.username !== editData.username) body.username = formData.username;
+				if (formData.name && formData.name !== editData.name) body.name = formData.name;
+				if (formData.age && formData.age !== editData.age) body.age = formData.age;
+				updateRecord(body);
+			}
+		} else {
+			const body = {
 				username: formData.username,
 				name: formData.name,
 				age: formData.age,
-			}),
-		};
-		await fetch('/api/create-demoPerson/', requestOptions).then((response) =>
-			response.json().then((data) => {
-				console.log(data);
-			}),
-		);
+			};
+			createRecord(body);
+		}
 		handleCloseModal();
 	};
 
@@ -71,6 +86,7 @@ export const Modal = ({ setModalState, isOpen }: ModalProps) => {
 			<div className='h-fit'>
 				<form id='introToIPA-pageOne-createDemoPersonForm'>
 					<div className='mb-5'>
+						{isEdit ? <span>ID: {editData?.id} </span> : null}
 						<label
 							className='block text-sm font-medium text-slate-700'
 							htmlFor='introToIPA-pageOne-createDemoPerson-inputUsername'
@@ -82,8 +98,9 @@ export const Modal = ({ setModalState, isOpen }: ModalProps) => {
 							id='introToIPA-pageOne-createDemoPerson-inputUsername'
 							onChange={handleUsernameInput}
 							placeholder='name@provider.com'
-							required
+							required={required}
 							type='email'
+							value={formData.username}
 						/>
 					</div>
 					<div className='mb-5'>
@@ -97,8 +114,10 @@ export const Modal = ({ setModalState, isOpen }: ModalProps) => {
 							className='block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500'
 							id='introToIPA-pageOne-createDemoPerson-inputName'
 							onChange={handleNameInput}
-							required
+							placeholder='John Doe'
+							required={required}
 							type='text'
+							value={formData.name}
 						/>
 					</div>
 					<div className='mb-5'>
@@ -110,13 +129,13 @@ export const Modal = ({ setModalState, isOpen }: ModalProps) => {
 						</label>
 						<input
 							className='block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-blue-500 dark:focus:ring-blue-500'
-							defaultValue={0}
 							id='introToIPA-pageOne-createDemoPerson-inputAge'
 							min={0}
 							onChange={handleAgeInput}
 							placeholder='0'
-							required
+							required={required}
 							type='number'
+							value={formData.age}
 						/>
 					</div>
 					{/* make sure you can't manually put in lower tha 0 */}
@@ -149,5 +168,3 @@ export const Modal = ({ setModalState, isOpen }: ModalProps) => {
 		document.body,
 	);
 };
-
-export const Form = () => {};
