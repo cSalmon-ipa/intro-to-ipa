@@ -203,8 +203,6 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 						/>
 						{err.ageError ? <span className='text-red-400'>{err.ageErrorMsg}</span> : null}
 					</div>
-					{/* make sure you can't manually put in lower tha 0 */}
-
 					<div className='flex w-full justify-between'>
 						<button
 							className='w-25 hover:bg-red-450 rounded-lg bg-red-400 px-5 py-2 text-center text-white hover:bg-red-500'

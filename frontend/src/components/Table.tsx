@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
+import { useState } from 'react';
 import { Link } from 'react-router';
 
 type TableProps = {
@@ -11,8 +12,17 @@ type TableProps = {
 	}[];
 };
 
+type DemoPerson = {
+	id: number;
+	username: string;
+	name: string;
+	age: number;
+};
+
 export const Table = ({ data }: TableProps) => {
 	const headers = Object.keys(data[0]);
+	const [searchData, setSearchData] = useState(data);
+	const [sortFormat, setSortFormat] = useState({ sortBy: 'id', sortDirection: 'asc' });
 	const queryClient = useQueryClient();
 
 	const apiDeleteCall = useMutation({
@@ -29,13 +39,183 @@ export const Table = ({ data }: TableProps) => {
 
 	const handleDeleteButton = (id: number) => {
 		if (window.confirm('Are you sure you want to delete this user?')) {
-			// mutate(id);
 			apiDeleteCall.mutate(id);
+		}
+	};
+
+	const handleSortBySelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const sortBy = e.target.value.toLowerCase();
+		setSortFormat({ ...sortFormat, sortBy: sortBy });
+	};
+
+	const handleSortDirectionSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const sortDirection = e.target.value;
+		setSortFormat({ ...sortFormat, sortDirection: sortDirection });
+	};
+
+	const handleSortButton = (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const sortData = [...searchData];
+		switch (sortFormat.sortBy) {
+			case 'id':
+				if (sortFormat.sortDirection === 'asc') {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						return a.id - b.id;
+					});
+				} else {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						return b.id - a.id;
+					});
+				}
+				break;
+			case 'username':
+				if (sortFormat.sortDirection === 'asc') {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						const usernameA = a.username;
+						const usernameB = b.username;
+						if (usernameA < usernameB) {
+							return -1;
+						} else if (usernameA > usernameB) {
+							return 1;
+						}
+						return 0;
+					});
+				} else {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						const usernameA = a.username;
+						const usernameB = b.username;
+						if (usernameA > usernameB) {
+							return -1;
+						} else if (usernameA < usernameB) {
+							return 1;
+						}
+						return 0;
+					});
+				}
+				break;
+			case 'name':
+				if (sortFormat.sortDirection === 'asc') {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						const nameA = a.name;
+						const nameB = b.name;
+						if (nameA < nameB) {
+							return -1;
+						} else if (nameA > nameB) {
+							return 1;
+						}
+						return 0;
+					});
+				} else {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						const nameA = a.name;
+						const nameB = b.name;
+						if (nameA > nameB) {
+							return -1;
+						} else if (nameA < nameB) {
+							return 1;
+						}
+						return 0;
+					});
+				}
+				break;
+			case 'age':
+				if (sortFormat.sortDirection === 'asc') {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						return a.age - b.age;
+					});
+				} else {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						return b.age - a.age;
+					});
+				}
+				break;
+		}
+
+		setSearchData(sortData);
+	};
+
+	const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const input = e.target.value.toLowerCase();
+		if (input === '') {
+			setSearchData(data);
+		} else {
+			const filteredData = searchData.filter((demoPerson) => {
+				if (
+					demoPerson.id.toString().startsWith(input) ||
+					demoPerson.username.toLowerCase().startsWith(input) ||
+					demoPerson.name.toLowerCase().startsWith(input) ||
+					demoPerson.age.toString().startsWith(input)
+				) {
+					return true;
+				}
+				return false;
+			});
+			setSearchData(filteredData);
 		}
 	};
 
 	return (
 		<div data-testid='table' id='table'>
+			<div className='flex'>
+				<form className='flex justify-start'>
+					<input
+						className='block rounded-l-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
+						id='introToIPA-pageOne-demoPersonSearchBar'
+						onChange={handleSearchInput}
+						type='search'
+					/>
+					<button
+						className='rounded-r-lg bg-gray-200 px-5 hover:bg-gray-300'
+						id='introToIPA-pageOne-demoPersonSearchButton'
+						onClick={() => {
+							setSearchData(data);
+						}}
+						type='reset'
+					>
+						Clear
+					</button>
+				</form>
+				<form
+					className='flex'
+					onSubmit={(e) => {
+						handleSortButton(e);
+					}}
+				>
+					<label className='text-md block font-medium text-slate-700' htmlFor='introToIPA-pageOne-demoPersonSortSelect'>
+						Sort By:
+					</label>
+					<select
+						className='block border border-gray-300 bg-gray-50'
+						id='introToIPA-pageOne-demoPersonSortSelect'
+						onChange={handleSortBySelection}
+					>
+						{headers.map((header) => (
+							<option key={header} value={header}>
+								{header.toUpperCase()}
+							</option>
+						))}
+					</select>
+					<select
+						className='block border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
+						id='introToIPA-pageOne-demoPersonSortDirectionSelect'
+						onChange={handleSortDirectionSelection}
+					>
+						<option key='asc' value='asc'>
+							asc
+						</option>
+						<option key='desc' value='desc'>
+							desc
+						</option>
+					</select>
+					<button
+						className='rounded-lg bg-gray-200 px-5 hover:bg-gray-300'
+						id='introToIPA-pageOne-demoPersonSortButton'
+						type='submit'
+					>
+						Sort
+					</button>
+				</form>
+			</div>
 			<table className='table-auto' id='introToIPA-pageOne-demoPersonTable'>
 				<thead>
 					<tr>
@@ -46,7 +226,7 @@ export const Table = ({ data }: TableProps) => {
 					</tr>
 				</thead>
 				<tbody>
-					{data.map((person) => (
+					{searchData.map((person) => (
 						<tr key={person.id}>
 							<td>{person.id}</td>
 							<td>{person.username}</td>
@@ -63,7 +243,7 @@ export const Table = ({ data }: TableProps) => {
 							<td>{person.age}</td>
 							<td>
 								<button
-									className='rounded-none bg-red-400'
+									className='rounded-md bg-red-400 p-2 text-white hover:bg-red-500'
 									id='introToIPA-pageOne-demoPersonTable-removeDemoPerson'
 									onClick={() => {
 										handleDeleteButton(person.id);
