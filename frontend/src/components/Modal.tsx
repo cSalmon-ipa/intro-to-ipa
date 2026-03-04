@@ -26,7 +26,6 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 		ageErrorMsg: '',
 	});
 	const pageLoaded = isEdit ? document.getElementById('pageTwo') : document.getElementById('pageOne');
-	const required = isEdit ? false : true;
 	const { mutate: createRecord } = useApiCreateCall();
 	const { mutate: updateRecord } = useApiUpdateCall(editData?.id.toString() ?? '');
 
@@ -46,51 +45,51 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 	};
 
 	const validateAge = (age: number | undefined) => {
-		if (age === undefined) {
-			setErr({ ...err, ageError: true, ageErrorMsg: 'Age must have a value' });
+		if (age === undefined || Number.isNaN(age)) {
+			return { ageError: true, ageErrorMsg: 'Age must have a value' };
 		} else if (age < 0) {
-			setErr({ ...err, ageError: true, ageErrorMsg: 'Age cannot be negative value' });
-		} else {
-			setErr({ ...err, ageError: false, ageErrorMsg: '' });
+			return { ageError: true, ageErrorMsg: 'Age cannot be negative value' };
 		}
+		return { ageError: false, ageErrorMsg: '' };
 	};
 	const validateName = (name: string | undefined) => {
 		if (name === '' || name === undefined) {
-			setErr({ ...err, nameError: true, nameErrorMsg: 'Name is required' });
-		} else {
-			setErr({ ...err, nameError: false, nameErrorMsg: '' });
+			return { nameError: true, nameErrorMsg: 'Name is required' };
 		}
+		return { nameError: false, nameErrorMsg: '' };
 	};
 	const validateUsername = (username: string | undefined) => {
 		const syntax = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 		if (username === '' || username === undefined) {
-			setErr({ ...err, usernameError: true, usernameErrorMsg: 'Username is required' });
+			return { usernameError: true, usernameErrorMsg: 'Username is required' };
 		} else if (!syntax.test(username)) {
-			setErr({ ...err, usernameError: true, usernameErrorMsg: 'Invalid syntax for username' });
-		} else {
-			setErr({ ...err, usernameError: false, usernameErrorMsg: '' });
+			return { usernameError: true, usernameErrorMsg: 'Invalid syntax for username' };
 		}
+		return { usernameError: false, usernameErrorMsg: '' };
 	};
 
 	// If editing, updates record. Else, creates new record
-	const handleSaveButton = () => {
+	const handleSaveButton = (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+
+		let error = err;
+
 		if (isEdit) {
 			if (editData?.id) {
 				const body: Record<string, string | number> = {};
-
 				if (formData.username && formData.username !== editData.username) {
 					body.username = formData.username.trim();
-					validateUsername(body.username);
+					Object.assign(error, validateUsername(body.username));
 				}
 				if (formData.name && formData.name !== editData.name) {
 					body.name = formData.name.trim();
-					validateName(body.name);
+					Object.assign(error, validateName(body.name));
 				}
 				if (formData.age && formData.age !== editData.age) {
 					body.age = parseInt(formData.age.toString().replace(/^0+(?=\d)/, ''));
-					validateAge(body.age);
+					Object.assign(error, validateAge(body.age));
 				}
-				if (!err.ageError && !err.nameError && !err.usernameError) {
+				if (!error.ageError && !error.nameError && !error.usernameError) {
 					updateRecord(body);
 				}
 			}
@@ -101,15 +100,20 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 				age: formData.age,
 			};
 
-			validateUsername(formData.username?.trim());
-			validateName(formData.name?.trim());
-			validateAge(formData.age);
+			error = {
+				...validateUsername(formData.username?.trim()),
+				...validateName(formData.name?.trim()),
+				...validateAge(formData.age),
+			};
 
-			if (!err.ageError && !err.nameError && !err.usernameError) {
+			if (!error.ageError && !error.nameError && !error.usernameError) {
 				createRecord(body);
 			}
 		}
-		if (!err.ageError && !err.nameError && !err.usernameError) {
+
+		setErr({ ...error });
+
+		if (!error.ageError && !error.nameError && !error.usernameError) {
 			handleCloseModal();
 		}
 	};
@@ -134,8 +138,8 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 			<div className='h-fit'>
 				<form
 					id='introToIPA-pageOne-createDemoPersonForm'
-					onSubmit={() => {
-						handleSaveButton();
+					onSubmit={(e) => {
+						handleSaveButton(e);
 					}}
 				>
 					<div className='mb-5'>
@@ -150,11 +154,10 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 							className='block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
 							id='introToIPA-pageOne-createDemoPerson-inputUsername'
 							onBlur={() => {
-								validateUsername(formData.username);
+								setErr({ ...err, ...validateUsername(formData.username) });
 							}}
 							onChange={handleUsernameInput}
 							placeholder='name@provider.com'
-							required={required}
 							type='email'
 							value={formData.username}
 						/>
@@ -171,11 +174,10 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 							className='block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
 							id='introToIPA-pageOne-createDemoPerson-inputName'
 							onBlur={() => {
-								validateName(formData.name);
+								setErr({ ...err, ...validateName(formData.name) });
 							}}
 							onChange={handleNameInput}
 							placeholder='John Doe'
-							required={required}
 							type='text'
 							value={formData.name}
 						/>
@@ -193,11 +195,10 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 							id='introToIPA-pageOne-createDemoPerson-inputAge'
 							min={0}
 							onBlur={() => {
-								validateAge(formData.age);
+								setErr({ ...err, ...validateAge(formData.age) });
 							}}
 							onChange={handleAgeInput}
 							placeholder='0'
-							required={required}
 							type='number'
 							value={formData.age}
 						/>

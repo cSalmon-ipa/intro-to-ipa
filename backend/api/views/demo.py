@@ -5,6 +5,7 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+
 from api.models.demoperson import DemoPerson
 from api.serializers.demo import (
 	CreateDemoPersonSerializer,
@@ -35,7 +36,7 @@ class DemoByIDPerson(APIView):
 				demo_person = DemoPerson.objects.get(id=record_id)
 				serializer = self.serializer_class(demo_person)
 			except DemoPerson.DoesNotExist:
-				return Response({"msg": "Record not found"}, status=status.HTTP_404_NOT_FOUND)
+				return Response({"message": "Record not found."}, status=status.HTTP_404_NOT_FOUND)
 			return Response({"message": "success", "data": serializer.data}, status=status.HTTP_200_OK)
 
 
@@ -48,16 +49,17 @@ class CreateDemoPersonView(APIView):
 			username = serializer.data.get("username")
 			name = serializer.data.get("name")
 			age = serializer.data.get("age")
-			queryset = DemoPerson.objects.filter(username=username)
-			if queryset.exists():
-				# To avoid duplicates. Check if necessary measure.
-				return Response({"msg": "Username already in use"}, status=status.HTTP_409_CONFLICT)
+			demo_person = DemoPerson(username=username, name=name, age=age)
+			demo_person.save()
+			return Response({"message": "success", "data": DemoSerializer(demo_person).data}, status=status.HTTP_201_CREATED)
 
-			else:
-				demo_person = DemoPerson(username=username, name=name, age=age)
-				demo_person.save()
-				return Response(DemoSerializer(demo_person).data, status=status.HTTP_201_CREATED)
-		return Response({"Bad Request": "Invalid data."}, status=status.HTTP_400_BAD_REQUEST)
+		# message = ""
+		# for field_name, errors in serializer.errors.items():
+		# 	message += f"\nField: {field_name}"
+		# 	for error_message in errors:
+		# 		message += f"\n- {error_message}"
+		# print(message)
+		return Response({"message": "Record could not be created."}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class DeleteDemoPerson(APIView):
@@ -65,7 +67,7 @@ class DeleteDemoPerson(APIView):
 		try:
 			demo_person = DemoPerson.objects.get(id=record_id)
 		except DemoPerson.DoesNotExist:
-			return Response({"msg": "Record not found"}, status=status.HTTP_404_NOT_FOUND)
+			return Response({"message": "Record not found."}, status=status.HTTP_404_NOT_FOUND)
 		demo_person.delete()
 		return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -77,11 +79,19 @@ class UpdateDemoPerson(APIView):
 		try:
 			demo_person = DemoPerson.objects.get(id=record_id)
 		except DemoPerson.DoesNotExist:
-			return Response({"msg": "Record not found"}, status=status.HTTP_404_NOT_FOUND)
+			return Response({"message": "Record not found."}, status=status.HTTP_404_NOT_FOUND)
 		serializer = UpdateDemoPersonSerializer(demo_person, data=request.data, partial=True)
 		if serializer.is_valid():
 			serializer.save()
-			return Response(DemoSerializer(demo_person).data, status=status.HTTP_201_CREATED)
+			return Response(
+				{"message": "Record successfully updated.", "data": DemoSerializer(demo_person).data},
+				status=status.HTTP_201_CREATED,
+			)
 		if not serializer.is_valid():
-			print(serializer.errors)
-			return Response({"Bad Request": "Invalid data."}, status=status.HTTP_400_BAD_REQUEST)
+			# message = ""
+			# for field_name, errors in serializer.errors.items():
+			# 	message += f"\nField: {field_name}"
+			# 	for error_message in errors:
+			# 		message += f"\n- {error_message}"
+			# print(message)
+			return Response({"message": "Record could not be updated."}, status=status.HTTP_400_BAD_REQUEST)

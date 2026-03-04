@@ -1,7 +1,7 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
+
+import { useApiDeleteCall } from 'actions/DemoAction';
 
 type TableProps = {
 	readonly data: {
@@ -23,23 +23,15 @@ export const Table = ({ data }: TableProps) => {
 	const headers = Object.keys(data[0]);
 	const [searchData, setSearchData] = useState(data);
 	const [sortFormat, setSortFormat] = useState({ sortBy: 'id', sortDirection: 'asc' });
-	const queryClient = useQueryClient();
+	const { mutate: deleteRecord } = useApiDeleteCall();
 
-	const apiDeleteCall = useMutation({
-		mutationFn: (id: number) =>
-			fetch(`/api/delete-demoPerson/${id.toString()}`, {
-				method: 'DELETE',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(id),
-			}),
-		onSuccess: async () => {
-			await queryClient.invalidateQueries({ queryKey: ['demo'] });
-		},
-	});
+	useEffect(() => {
+		setSearchData(data);
+	}, [data]);
 
 	const handleDeleteButton = (id: number) => {
 		if (window.confirm('Are you sure you want to delete this user?')) {
-			apiDeleteCall.mutate(id);
+			deleteRecord(id);
 		}
 	};
 
@@ -53,8 +45,7 @@ export const Table = ({ data }: TableProps) => {
 		setSortFormat({ ...sortFormat, sortDirection: sortDirection });
 	};
 
-	const handleSortButton = (e: React.FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
+	const handleSort = () => {
 		const sortData = [...searchData];
 		switch (sortFormat.sortBy) {
 			case 'id':
@@ -135,7 +126,7 @@ export const Table = ({ data }: TableProps) => {
 	};
 
 	const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const input = e.target.value.toLowerCase();
+		const input = e.target.value.trim().toLowerCase();
 		if (input === '') {
 			setSearchData(data);
 		} else {
@@ -157,63 +148,58 @@ export const Table = ({ data }: TableProps) => {
 	return (
 		<div data-testid='table' id='table'>
 			<div className='flex'>
-				<form className='flex justify-start'>
+				<form>
+					<label className='block text-sm font-medium text-slate-700' htmlFor='introToIPA-pageOne-demoPersonSortSelect'>
+						Search:
+					</label>
 					<input
-						className='block rounded-l-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
+						className='block rounded-lg border border-gray-300 bg-gray-50 p-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
 						id='introToIPA-pageOne-demoPersonSearchBar'
 						onChange={handleSearchInput}
 						type='search'
 					/>
-					<button
-						className='rounded-r-lg bg-gray-200 px-5 hover:bg-gray-300'
-						id='introToIPA-pageOne-demoPersonSearchButton'
-						onClick={() => {
-							setSearchData(data);
-						}}
-						type='reset'
-					>
-						Clear
-					</button>
 				</form>
 				<form
-					className='flex'
 					onSubmit={(e) => {
-						handleSortButton(e);
+						e.preventDefault();
+						handleSort();
 					}}
 				>
-					<label className='text-md block font-medium text-slate-700' htmlFor='introToIPA-pageOne-demoPersonSortSelect'>
+					<label className='block text-sm font-medium text-slate-700' htmlFor='introToIPA-pageOne-demoPersonSortSelect'>
 						Sort By:
 					</label>
-					<select
-						className='block border border-gray-300 bg-gray-50'
-						id='introToIPA-pageOne-demoPersonSortSelect'
-						onChange={handleSortBySelection}
-					>
-						{headers.map((header) => (
-							<option key={header} value={header}>
-								{header.toUpperCase()}
+					<div className='flex justify-start'>
+						<select
+							className='block border border-gray-300 bg-gray-50'
+							id='introToIPA-pageOne-demoPersonSortSelect'
+							onChange={handleSortBySelection}
+						>
+							{headers.map((header) => (
+								<option key={header} value={header}>
+									{header.toUpperCase()}
+								</option>
+							))}
+						</select>
+						<select
+							className='block appearance-none border border-gray-300 bg-gray-50 p-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
+							id='introToIPA-pageOne-demoPersonSortDirectionSelect'
+							onChange={handleSortDirectionSelection}
+						>
+							<option key='asc' value='asc'>
+								asc
 							</option>
-						))}
-					</select>
-					<select
-						className='block border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
-						id='introToIPA-pageOne-demoPersonSortDirectionSelect'
-						onChange={handleSortDirectionSelection}
-					>
-						<option key='asc' value='asc'>
-							asc
-						</option>
-						<option key='desc' value='desc'>
-							desc
-						</option>
-					</select>
-					<button
-						className='rounded-lg bg-gray-200 px-5 hover:bg-gray-300'
-						id='introToIPA-pageOne-demoPersonSortButton'
-						type='submit'
-					>
-						Sort
-					</button>
+							<option key='desc' value='desc'>
+								desc
+							</option>
+						</select>
+						<button
+							className='rounded-lg bg-gray-200 px-5 hover:bg-gray-300'
+							id='introToIPA-pageOne-demoPersonSortButton'
+							type='submit'
+						>
+							Sort
+						</button>
+					</div>
 				</form>
 			</div>
 			<table className='table-auto' id='introToIPA-pageOne-demoPersonTable'>
