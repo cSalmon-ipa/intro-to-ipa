@@ -19,7 +19,7 @@ export const PageTwo = () => {
 	const isId = id ? true : false;
 	const { data } = useDemoByID(id?.toString() ?? '', isId);
 	return (
-		<div id='pageTwo'>
+		<div data-testid='pageTwo' id='pageTwo'>
 			<div className='bg-orange-400' data-testid='PageTwo' id='PageTwo'>
 				<TemplateComponent content='PageTwo' />
 			</div>

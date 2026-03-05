@@ -32,11 +32,11 @@ type updatePerson = {
 	age: number | undefined;
 };
 
-interface ApiResponseBody {
+type ApiResponseBody = {
 	status: 'success' | 'error';
 	data: object;
 	message: string;
-}
+};
 
 // This is what connects to the backend to pull data
 export const useDemo = () => {

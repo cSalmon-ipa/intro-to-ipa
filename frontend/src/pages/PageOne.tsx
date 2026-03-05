@@ -17,7 +17,8 @@ export const PageOne = () => {
 			{!isLoading && data ? <Table data={data.data} /> : null}
 			<button
 				className='rounded-full bg-sky-400'
-				id='introToIPA-pageOne-createDemoPerson Button'
+				data-testid='introToIPA-pageOne-createDemoPersonButton'
+				id='introToIPA-pageOne-createDemoPersonButton'
 				onClick={() => {
 					setModalState(true);
 				}}

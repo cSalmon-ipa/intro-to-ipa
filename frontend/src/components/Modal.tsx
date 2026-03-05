@@ -10,6 +10,34 @@ type ModalProps = {
 	editData?: Person; // Data to be edited if accessed by Edit button on Page 2
 };
 
+export const validateAge = (age: number | undefined) => {
+	if (age === undefined || Number.isNaN(age)) {
+		return { ageError: true, ageErrorMsg: 'Age must have a value' };
+	} else if (age.toString().length > 16) {
+		return { ageError: true, ageErrorMsg: 'Age must be less than 16 digits. Are they truly that old?' };
+	} else if (age < 0) {
+		return { ageError: true, ageErrorMsg: 'Age cannot be negative value' };
+	}
+	return { ageError: false, ageErrorMsg: '' };
+};
+
+export const validateName = (name: string | undefined) => {
+	if (name === '' || name === undefined) {
+		return { nameError: true, nameErrorMsg: 'Name is required' };
+	}
+	return { nameError: false, nameErrorMsg: '' };
+};
+
+export const validateUsername = (username: string | undefined) => {
+	const syntax = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+	if (username === '' || username === undefined) {
+		return { usernameError: true, usernameErrorMsg: 'Username is required' };
+	} else if (!syntax.test(username)) {
+		return { usernameError: true, usernameErrorMsg: 'Invalid syntax for username' };
+	}
+	return { usernameError: false, usernameErrorMsg: '' };
+};
+
 export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 	const isEdit = editData ? true : false;
 	const [formData, setFormData] = useState(
@@ -42,30 +70,6 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 			pageLoadedClose.style.filter = 'blur(0px)';
 		}
 		setModalState(false);
-	};
-
-	const validateAge = (age: number | undefined) => {
-		if (age === undefined || Number.isNaN(age)) {
-			return { ageError: true, ageErrorMsg: 'Age must have a value' };
-		} else if (age < 0) {
-			return { ageError: true, ageErrorMsg: 'Age cannot be negative value' };
-		}
-		return { ageError: false, ageErrorMsg: '' };
-	};
-	const validateName = (name: string | undefined) => {
-		if (name === '' || name === undefined) {
-			return { nameError: true, nameErrorMsg: 'Name is required' };
-		}
-		return { nameError: false, nameErrorMsg: '' };
-	};
-	const validateUsername = (username: string | undefined) => {
-		const syntax = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-		if (username === '' || username === undefined) {
-			return { usernameError: true, usernameErrorMsg: 'Username is required' };
-		} else if (!syntax.test(username)) {
-			return { usernameError: true, usernameErrorMsg: 'Invalid syntax for username' };
-		}
-		return { usernameError: false, usernameErrorMsg: '' };
 	};
 
 	// If editing, updates record. Else, creates new record
@@ -133,6 +137,7 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 	return createPortal(
 		<div
 			className='absolute left-1/2 top-1/2 flex h-auto w-80 -translate-x-1/2 -translate-y-1/2 items-center justify-center border-4 border-b-black bg-slate-200 py-8'
+			data-testid='introToIPA-pageOne-createDemoPersonModal'
 			id='introToIPA-pageOne-createDemoPersonModal'
 		>
 			<div className='h-fit'>
@@ -229,3 +234,8 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 		document.body,
 	);
 };
+// export const forTests = {
+// 	validateAge: Function,
+// 	validateName: Function,
+// 	validateUsername: Function,
+// };
