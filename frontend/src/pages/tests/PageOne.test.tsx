@@ -15,8 +15,5 @@ describe('PageOne tests', () => {
 		);
 		const pageOne = screen.getByTestId('PageOne');
 		expect(pageOne).toBeDefined();
-
-		// const { getByTestId } = render(<PageOne />);
-		// expect(getByTestId('PageOne')).toBeDefined();
 	});
 });

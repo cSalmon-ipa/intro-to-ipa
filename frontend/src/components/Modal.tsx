@@ -148,7 +148,9 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 					}}
 				>
 					<div className='mb-5'>
-						{isEdit ? <span>ID: {editData?.id} </span> : null}
+						{isEdit ? (
+							<span className='absolute left-0 top-0 p-2 text-sm font-medium text-slate-700'>ID: {editData?.id} </span>
+						) : null}
 						<label
 							className='block text-sm font-medium text-slate-700'
 							htmlFor='introToIPA-pageOne-createDemoPerson-inputUsername'
@@ -166,7 +168,9 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 							type='email'
 							value={formData.username}
 						/>
-						{err.usernameError ? <span className='text-red-400'>{err.usernameErrorMsg}</span> : null}
+						{err.usernameError ? (
+							<span className='text-sm font-medium text-red-400'>{err.usernameErrorMsg}</span>
+						) : null}
 					</div>
 					<div className='mb-5'>
 						<label
@@ -186,7 +190,7 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 							type='text'
 							value={formData.name}
 						/>
-						{err.nameError ? <span className='text-red-400'>{err.nameErrorMsg}</span> : null}
+						{err.nameError ? <span className='text-sm font-medium text-red-400'>{err.nameErrorMsg}</span> : null}
 					</div>
 					<div className='mb-5'>
 						<label
@@ -207,7 +211,7 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 							type='number'
 							value={formData.age}
 						/>
-						{err.ageError ? <span className='text-red-400'>{err.ageErrorMsg}</span> : null}
+						{err.ageError ? <span className='text-sm font-medium text-red-400'>{err.ageErrorMsg}</span> : null}
 					</div>
 					<div className='flex w-full justify-between'>
 						<button
@@ -234,8 +238,3 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 		document.body,
 	);
 };
-// export const forTests = {
-// 	validateAge: Function,
-// 	validateName: Function,
-// 	validateUsername: Function,
-// };

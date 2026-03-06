@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router';
 
 import { useApiDeleteCall } from 'actions/DemoAction';
@@ -23,27 +23,10 @@ export const Table = ({ data }: TableProps) => {
 	const headers = Object.keys(data[0]);
 	const [searchData, setSearchData] = useState(data);
 	const [sortFormat, setSortFormat] = useState({ sortBy: 'id', sortDirection: 'asc' });
+	const [submitFormat, setSubmitFormat] = useState({ sortBy: 'id', sortDirection: 'asc' });
 	const { mutate: deleteRecord } = useApiDeleteCall();
 
-	useEffect(() => {
-		setSearchData(data);
-	}, [data]);
-
-	const handleDeleteButton = (id: number) => {
-		if (window.confirm('Are you sure you want to delete this user?')) {
-			deleteRecord(id);
-		}
-	};
-
-	const handleSortBySelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const sortBy = e.target.value.toLowerCase();
-		setSortFormat({ ...sortFormat, sortBy: sortBy });
-	};
-
-	const handleSortDirectionSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const sortDirection = e.target.value;
-		setSortFormat({ ...sortFormat, sortDirection: sortDirection });
-	};
+	const bodyPadding = 'px-6 py-2';
 
 	const handleSort = () => {
 		const sortData = [...searchData];
@@ -62,8 +45,8 @@ export const Table = ({ data }: TableProps) => {
 			case 'username':
 				if (sortFormat.sortDirection === 'asc') {
 					sortData.sort((a: DemoPerson, b: DemoPerson) => {
-						const usernameA = a.username;
-						const usernameB = b.username;
+						const usernameA = a.username.toLowerCase();
+						const usernameB = b.username.toLowerCase();
 						if (usernameA < usernameB) {
 							return -1;
 						} else if (usernameA > usernameB) {
@@ -73,8 +56,8 @@ export const Table = ({ data }: TableProps) => {
 					});
 				} else {
 					sortData.sort((a: DemoPerson, b: DemoPerson) => {
-						const usernameA = a.username;
-						const usernameB = b.username;
+						const usernameA = a.username.toLowerCase();
+						const usernameB = b.username.toLowerCase();
 						if (usernameA > usernameB) {
 							return -1;
 						} else if (usernameA < usernameB) {
@@ -87,8 +70,8 @@ export const Table = ({ data }: TableProps) => {
 			case 'name':
 				if (sortFormat.sortDirection === 'asc') {
 					sortData.sort((a: DemoPerson, b: DemoPerson) => {
-						const nameA = a.name;
-						const nameB = b.name;
+						const nameA = a.name.toLowerCase();
+						const nameB = b.name.toLowerCase();
 						if (nameA < nameB) {
 							return -1;
 						} else if (nameA > nameB) {
@@ -98,8 +81,8 @@ export const Table = ({ data }: TableProps) => {
 					});
 				} else {
 					sortData.sort((a: DemoPerson, b: DemoPerson) => {
-						const nameA = a.name;
-						const nameB = b.name;
+						const nameA = a.name.toLowerCase();
+						const nameB = b.name.toLowerCase();
 						if (nameA > nameB) {
 							return -1;
 						} else if (nameA < nameB) {
@@ -122,7 +105,31 @@ export const Table = ({ data }: TableProps) => {
 				break;
 		}
 
-		setSearchData(sortData);
+		return sortData;
+	};
+
+	useEffect(() => {
+		setSearchData(data);
+	}, [data]);
+
+	const sortedData = useMemo(() => {
+		return handleSort();
+	}, [searchData, submitFormat]);
+
+	const handleDeleteButton = (id: number) => {
+		if (window.confirm('Are you sure you want to delete this user?')) {
+			deleteRecord(id);
+		}
+	};
+
+	const handleSortBySelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const sortBy = e.target.value.toLowerCase();
+		setSortFormat({ ...sortFormat, sortBy: sortBy });
+	};
+
+	const handleSortDirectionSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const sortDirection = e.target.value;
+		setSortFormat({ ...sortFormat, sortDirection: sortDirection });
 	};
 
 	const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -147,7 +154,7 @@ export const Table = ({ data }: TableProps) => {
 
 	return (
 		<div data-testid='table' id='table'>
-			<div className='flex'>
+			<div className='flex justify-between py-4'>
 				<form>
 					<label className='block text-sm font-medium text-slate-700' htmlFor='introToIPA-pageOne-demoPersonSortSelect'>
 						Search:
@@ -162,7 +169,7 @@ export const Table = ({ data }: TableProps) => {
 				<form
 					onSubmit={(e) => {
 						e.preventDefault();
-						handleSort();
+						setSubmitFormat({ ...sortFormat });
 					}}
 				>
 					<label className='block text-sm font-medium text-slate-700' htmlFor='introToIPA-pageOne-demoPersonSortSelect'>
@@ -172,6 +179,7 @@ export const Table = ({ data }: TableProps) => {
 						<select
 							className='block border border-gray-300 bg-gray-50'
 							id='introToIPA-pageOne-demoPersonSortSelect'
+							name='sortBySelection'
 							onChange={handleSortBySelection}
 						>
 							{headers.map((header) => (
@@ -183,6 +191,7 @@ export const Table = ({ data }: TableProps) => {
 						<select
 							className='block appearance-none border border-gray-300 bg-gray-50 p-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
 							id='introToIPA-pageOne-demoPersonSortDirectionSelect'
+							name='sortByDirection'
 							onChange={handleSortDirectionSelection}
 						>
 							<option key='asc' value='asc'>
@@ -193,7 +202,7 @@ export const Table = ({ data }: TableProps) => {
 							</option>
 						</select>
 						<button
-							className='rounded-lg bg-gray-200 px-5 hover:bg-gray-300'
+							className='rounded-lg bg-blue-200 px-5 text-center hover:bg-blue-300'
 							id='introToIPA-pageOne-demoPersonSortButton'
 							type='submit'
 						>
@@ -202,21 +211,23 @@ export const Table = ({ data }: TableProps) => {
 					</div>
 				</form>
 			</div>
-			<table className='table-auto' id='introToIPA-pageOne-demoPersonTable'>
+			<table className='table-auto border-2 border-gray-300 bg-slate-50' id='introToIPA-pageOne-demoPersonTable'>
 				<thead>
 					<tr>
 						{headers.map((header) => (
-							<th key={header}>{header.toUpperCase()}</th>
+							<th className='p-4' key={header}>
+								{header.toUpperCase()}
+							</th>
 						))}
 						<th>DELETE</th>
 					</tr>
 				</thead>
 				<tbody>
-					{searchData.map((person) => (
-						<tr key={person.id}>
-							<td>{person.id}</td>
-							<td>{person.username}</td>
-							<td>
+					{sortedData.map((person) => (
+						<tr className='border-2 border-gray-300' key={person.id}>
+							<td className={bodyPadding}>{person.id}</td>
+							<td className={bodyPadding}>{person.username}</td>
+							<td className={bodyPadding}>
 								<Link
 									className='font-bold text-blue-600 underline'
 									id='introToIPA-pageOne-demoPersonTable-Link'
@@ -226,8 +237,8 @@ export const Table = ({ data }: TableProps) => {
 									{person.name}
 								</Link>
 							</td>
-							<td>{person.age}</td>
-							<td>
+							<td className={bodyPadding}>{person.age}</td>
+							<td className={bodyPadding}>
 								<button
 									className='rounded-md bg-red-400 p-2 text-white hover:bg-red-500'
 									id='introToIPA-pageOne-demoPersonTable-removeDemoPerson'

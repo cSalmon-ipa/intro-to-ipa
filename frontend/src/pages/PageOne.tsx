@@ -14,18 +14,22 @@ export const PageOne = () => {
 			<div className='bg-green-200' data-testid='PageOne' id='PageOne'>
 				<TemplateComponent content='PageOne' />
 			</div>
-			{!isLoading && data ? <Table data={data.data} /> : null}
-			<button
-				className='rounded-full bg-sky-400'
-				data-testid='introToIPA-pageOne-createDemoPersonButton'
-				id='introToIPA-pageOne-createDemoPersonButton'
-				onClick={() => {
-					setModalState(true);
-				}}
-				type='button'
-			>
-				Create
-			</button>
+			<div className='flex justify-center'>
+				<div className='grid place-items-center'>
+					{!isLoading && data ? <Table data={data.data} /> : null}
+					<button
+						className='float-end mt-4 rounded-lg bg-sky-500 px-4 py-3 text-center text-white hover:bg-sky-600'
+						data-testid='introToIPA-pageOne-createDemoPersonButton'
+						id='introToIPA-pageOne-createDemoPersonButton'
+						onClick={() => {
+							setModalState(true);
+						}}
+						type='button'
+					>
+						Create
+					</button>
+				</div>
+			</div>
 			{isOpen ? <Modal isOpen={isOpen} setModalState={setModalState} /> : null}
 		</div>
 	);
