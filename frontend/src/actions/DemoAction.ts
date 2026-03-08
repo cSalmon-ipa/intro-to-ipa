@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { apiCall } from 'actions/utils';
+import { DialogType } from 'components/PopUpDialog';
 
 const demoSchema = z.object({
 	message: z.string(),
@@ -55,7 +56,11 @@ export const useDemoByID = (id: string, isEnabled: boolean) => {
 	});
 };
 
-export const useApiDeleteCall = () => {
+export const useApiDeleteCall = (
+	setDialogState: React.Dispatch<
+		React.SetStateAction<{ isOpen: boolean; type: string; errorCode: string; message: string }>
+	>,
+) => {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (id: number) => {
@@ -66,37 +71,33 @@ export const useApiDeleteCall = () => {
 			});
 			if (!response.ok) {
 				const errorData = (await response.json()) as ApiResponseBody;
-				throw new Error(`${errorData.message} Error code: ${response.status.toString()} ${response.statusText}`);
+				const errorResponse = { status: response.status.toString(), statusText: response.statusText };
+				throw new Error(errorData.message, { cause: errorResponse });
 			}
 			return response;
 		},
 		onSuccess: async () => {
+			setDialogState({ isOpen: true, type: DialogType.SUCCESS, errorCode: ``, message: 'Record deleted.' });
 			// Invalidate and refetch the 'users' query
 			await queryClient.invalidateQueries({ queryKey: ['demo'] });
 		},
 		onError: (error) => {
-			alert(error.message);
+			const errorCause = error.cause as { status: string; statusText: string };
+			setDialogState({
+				isOpen: true,
+				type: DialogType.ERROR,
+				errorCode: `Error code: ${errorCause.status} ${errorCause.statusText}`,
+				message: error.message,
+			});
 		},
 	});
 };
 
-// export const useApiDeleteCall = () => {
-// 	const queryClient = useQueryClient();
-// 	return useMutation({
-// 		mutationFn: (id: number) =>
-// 			fetch(`/api/delete-demoPerson/${id.toString()}`, {
-// 				method: 'DELETE',
-// 				headers: { 'Content-Type': 'application/json' },
-// 				body: JSON.stringify(id),
-// 			}),
-// 		onSuccess: async () => {
-// 			// Invalidate and refetch the 'users' query
-// 			await queryClient.invalidateQueries({ queryKey: ['demo'] });
-// 		},
-// 	});
-// };
-
-export const useApiCreateCall = () => {
+export const useApiCreateCall = (
+	setDialogState: React.Dispatch<
+		React.SetStateAction<{ isOpen: boolean; type: string; errorCode: string; message: string }>
+	>,
+) => {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (body: updatePerson) => {
@@ -107,24 +108,35 @@ export const useApiCreateCall = () => {
 			});
 			if (!response.ok) {
 				const errorData = (await response.json()) as ApiResponseBody;
-
-				throw new Error(`${errorData.message} Error code: ${response.status.toString()} ${response.statusText}`);
+				const errorResponse = { status: response.status.toString(), statusText: response.statusText };
+				throw new Error(errorData.message, { cause: errorResponse });
 			}
 			return response;
 		},
 
 		onSuccess: async () => {
-			alert(`Record created`);
 			// Invalidate and refetch the 'users' query
+			setDialogState({ isOpen: true, type: DialogType.SUCCESS, errorCode: ``, message: 'Record created.' });
 			await queryClient.invalidateQueries({ queryKey: ['demo'] });
 		},
 		onError: (error) => {
-			alert(error.message);
+			const errorCause = error.cause as { status: string; statusText: string };
+			setDialogState({
+				isOpen: true,
+				type: DialogType.ERROR,
+				errorCode: `Error code: ${errorCause.status} ${errorCause.statusText}`,
+				message: error.message,
+			});
 		},
 	});
 };
 
-export const useApiUpdateCall = (id: string) => {
+export const useApiUpdateCall = (
+	id: string,
+	setDialogState: React.Dispatch<
+		React.SetStateAction<{ isOpen: boolean; type: string; errorCode: string; message: string }>
+	>,
+) => {
 	const queryClient = useQueryClient();
 	return useMutation({
 		mutationFn: async (body: Record<string, string | number>) => {
@@ -135,16 +147,23 @@ export const useApiUpdateCall = (id: string) => {
 			});
 			if (!response.ok) {
 				const errorData = (await response.json()) as ApiResponseBody;
-
-				throw new Error(`${errorData.message} Error code: ${response.status.toString()} ${response.statusText}`);
+				const errorResponse = { status: response.status.toString(), statusText: response.statusText };
+				throw new Error(errorData.message, { cause: errorResponse });
 			}
 			return response;
 		},
 		onSuccess: async () => {
+			setDialogState({ isOpen: true, type: DialogType.SUCCESS, errorCode: ``, message: 'Record updated.' });
 			await queryClient.invalidateQueries({ queryKey: ['demo-id', id] });
 		},
 		onError: (error) => {
-			alert(error.message);
+			const errorCause = error.cause as { status: string; statusText: string };
+			setDialogState({
+				isOpen: true,
+				type: DialogType.ERROR,
+				errorCode: `Error code: ${errorCause.status} ${errorCause.statusText}`,
+				message: error.message,
+			});
 		},
 	});
 };

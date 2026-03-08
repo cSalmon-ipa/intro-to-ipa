@@ -8,6 +8,9 @@ type ModalProps = {
 	setModalState: React.Dispatch<React.SetStateAction<boolean>>;
 	isOpen: boolean;
 	editData?: Person; // Data to be edited if accessed by Edit button on Page 2
+	setDialogState: React.Dispatch<
+		React.SetStateAction<{ isOpen: boolean; type: string; errorCode: string; message: string }>
+	>;
 };
 
 export const validateAge = (age: number | undefined) => {
@@ -38,8 +41,9 @@ export const validateUsername = (username: string | undefined) => {
 	return { usernameError: false, usernameErrorMsg: '' };
 };
 
-export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
+export const Modal = ({ setModalState, isOpen, editData, setDialogState }: ModalProps) => {
 	const isEdit = editData ? true : false;
+
 	const [formData, setFormData] = useState(
 		isEdit
 			? { username: editData?.username, name: editData?.name, age: editData?.age }
@@ -54,8 +58,8 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 		ageErrorMsg: '',
 	});
 	const pageLoaded = isEdit ? document.getElementById('pageTwo') : document.getElementById('pageOne');
-	const { mutate: createRecord } = useApiCreateCall();
-	const { mutate: updateRecord } = useApiUpdateCall(editData?.id.toString() ?? '');
+	const { mutate: createRecord } = useApiCreateCall(setDialogState);
+	const { mutate: updateRecord } = useApiUpdateCall(editData?.id.toString() ?? '', setDialogState);
 
 	if (pageLoaded) {
 		if (isOpen) {
@@ -215,7 +219,7 @@ export const Modal = ({ setModalState, isOpen, editData }: ModalProps) => {
 					</div>
 					<div className='flex w-full justify-between'>
 						<button
-							className='w-25 hover:bg-red-450 rounded-lg bg-red-400 px-5 py-2 text-center text-white hover:bg-red-500'
+							className='w-25 rounded-lg bg-red-400 px-5 py-2 text-center text-white hover:bg-red-500'
 							id='introToIPA-pageOne-createDemoPerson-cancelButton'
 							onClick={() => {
 								handleCloseModal();

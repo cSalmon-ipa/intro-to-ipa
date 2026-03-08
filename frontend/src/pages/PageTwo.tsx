@@ -3,6 +3,7 @@ import { useLocation } from 'react-router';
 
 import { useDemoByID } from 'actions/DemoAction';
 import { Modal } from 'components/Modal';
+import { PopUpDialog } from 'components/PopUpDialog';
 import { TemplateComponent } from 'components/TemplateComponent';
 
 export type Person = {
@@ -15,6 +16,7 @@ export type Person = {
 export const PageTwo = () => {
 	const location = useLocation();
 	const id = location.state as number | undefined;
+	const [dialogContent, setDialogState] = useState({ isOpen: false, type: '', errorCode: '', message: '' });
 	const [isEdit, setIsEdit] = useState(false);
 	const isId = id ? true : false;
 	const { data } = useDemoByID(id?.toString() ?? '', isId);
@@ -55,9 +57,12 @@ export const PageTwo = () => {
 						>
 							Edit
 						</button>
-						{isEdit ? <Modal editData={data.data} isOpen={isEdit} setModalState={setIsEdit} /> : null}
+						{isEdit ? (
+							<Modal editData={data.data} isOpen={isEdit} setDialogState={setDialogState} setModalState={setIsEdit} />
+						) : null}
 					</div>
 				)}
+				{dialogContent.isOpen ? <PopUpDialog dialogContent={dialogContent} setDialogState={setDialogState} /> : null}
 			</div>
 		</div>
 	);

@@ -10,6 +10,9 @@ type TableProps = {
 		name: string;
 		age: number;
 	}[];
+	setDialogState: React.Dispatch<
+		React.SetStateAction<{ isOpen: boolean; type: string; errorCode: string; message: string }>
+	>;
 };
 
 type DemoPerson = {
@@ -19,12 +22,12 @@ type DemoPerson = {
 	age: number;
 };
 
-export const Table = ({ data }: TableProps) => {
+export const Table = ({ data, setDialogState }: TableProps) => {
 	const headers = Object.keys(data[0]);
 	const [searchData, setSearchData] = useState(data);
 	const [sortFormat, setSortFormat] = useState({ sortBy: 'id', sortDirection: 'asc' });
 	const [submitFormat, setSubmitFormat] = useState({ sortBy: 'id', sortDirection: 'asc' });
-	const { mutate: deleteRecord } = useApiDeleteCall();
+	const { mutate: deleteRecord } = useApiDeleteCall(setDialogState);
 
 	const bodyPadding = 'px-6 py-2';
 
