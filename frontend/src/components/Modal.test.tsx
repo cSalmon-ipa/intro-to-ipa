@@ -8,6 +8,7 @@ import { Modal, validateAge, validateName, validateUsername } from './Modal';
 const queryClient = new QueryClient();
 describe('Modal tests', () => {
 	const mockSetState = vi.fn();
+	const dialogSetState = vi.fn();
 	const mockData = {
 		id: 1,
 		username: 'test1@test1.com',
@@ -18,7 +19,7 @@ describe('Modal tests', () => {
 	it('Renders modal for create form', () => {
 		render(
 			<QueryClientProvider client={queryClient}>
-				<Modal isOpen={true} setModalState={mockSetState} />
+				<Modal isOpen={true} setDialogState={dialogSetState} setModalState={mockSetState} />
 			</QueryClientProvider>,
 		);
 		const modal = screen.getByTestId('introToIPA-pageOne-createDemoPersonModal');
@@ -28,7 +29,7 @@ describe('Modal tests', () => {
 	it('Renders modal for edit form', () => {
 		render(
 			<QueryClientProvider client={queryClient}>
-				<Modal editData={mockData} isOpen={true} setModalState={mockSetState} />
+				<Modal editData={mockData} isOpen={true} setDialogState={dialogSetState} setModalState={mockSetState} />
 			</QueryClientProvider>,
 		);
 		const modal = screen.getByTestId('introToIPA-pageOne-createDemoPersonModal');

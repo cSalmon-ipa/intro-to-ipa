@@ -2,12 +2,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '@testing-library/react';
 
 import { BrowserRouter } from 'react-router';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 import { Table } from './Table';
 
 const queryClient = new QueryClient();
 describe('renders Table', () => {
+	const dialogSetState = vi.fn();
 	const data = [
 		{
 			id: 1,
@@ -32,7 +33,7 @@ describe('renders Table', () => {
 		render(
 			<BrowserRouter>
 				<QueryClientProvider client={queryClient}>
-					<Table data={data} />
+					<Table data={data} setDialogState={dialogSetState} />
 				</QueryClientProvider>
 			</BrowserRouter>,
 		);
