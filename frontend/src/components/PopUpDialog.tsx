@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 type DialogProps = {
@@ -39,9 +40,14 @@ export const PopUpDialog = ({ dialogContent, setDialogState }: DialogProps) => {
 		setDialogState({ isOpen: false, type: '', errorCode: '', message: '' });
 	};
 
-	if ((dialogContent.type as DialogType) === DialogType.SUCCESS) {
-		setTimeout(handleCloseDialog, 1500);
-	}
+	useEffect(() => {
+		if ((dialogContent.type as DialogType) === DialogType.SUCCESS) {
+			const closeDialog = setTimeout(handleCloseDialog, 1500);
+			return () => {
+				clearTimeout(closeDialog);
+			};
+		}
+	}, []);
 
 	return createPortal(
 		<div
