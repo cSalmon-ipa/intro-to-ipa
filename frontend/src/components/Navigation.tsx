@@ -8,5 +8,8 @@ export const Navigation = () => (
 		<Link className='flex h-full flex-col justify-center' to='one'>
 			one
 		</Link>
+		<Link className='flex h-full flex-col justify-center' to='two'>
+			two
+		</Link>
 	</nav>
 );
