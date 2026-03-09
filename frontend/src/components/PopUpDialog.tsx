@@ -35,26 +35,13 @@ export const PopUpDialog = ({ dialogContent, setDialogState }: DialogProps) => {
 			break;
 	}
 
-	// const pageLoaded = isEdit ? document.getElementById('pageTwo') : document.getElementById('pageOne');
-
-	// if (pageLoaded) {
-	// 	if (isOpen) {
-	// 		pageLoaded.style.filter = 'blur(5px)';
-	// 	}
-	// }
-
-	// const handleCloseModal = () => {
-	// 	const pageLoadedClose = isEdit ? document.getElementById('pageTwo') : document.getElementById('pageOne');
-
-	// 	if (pageLoadedClose) {
-	// 		pageLoadedClose.style.filter = 'blur(0px)';
-	// 	}
-	// 	setModalState(false);
-	// };
-
 	const handleCloseDialog = () => {
 		setDialogState({ isOpen: false, type: '', errorCode: '', message: '' });
 	};
+
+	if ((dialogContent.type as DialogType) === DialogType.SUCCESS) {
+		setTimeout(handleCloseDialog, 1500);
+	}
 
 	return createPortal(
 		<div
