@@ -1,0 +1,262 @@
+import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router';
+
+import { useApiDeleteCall } from 'actions/DemoAction';
+
+type TableProps = {
+	readonly data: {
+		id: number;
+		username: string;
+		name: string;
+		age: number;
+	}[];
+	setDialogState: React.Dispatch<
+		React.SetStateAction<{ isOpen: boolean; type: string; errorCode: string; message: string }>
+	>;
+};
+
+type DemoPerson = {
+	id: number;
+	username: string;
+	name: string;
+	age: number;
+};
+
+export const Table = ({ data, setDialogState }: TableProps) => {
+	const headers = Object.keys(data[0]);
+	const [searchData, setSearchData] = useState(data);
+	const [sortFormat, setSortFormat] = useState({ sortBy: 'id', sortDirection: 'asc' });
+	const [submitFormat, setSubmitFormat] = useState({ sortBy: 'id', sortDirection: 'asc' });
+	const { mutate: deleteRecord } = useApiDeleteCall(setDialogState);
+
+	const bodyPadding = 'px-6 py-2';
+
+	const handleSort = () => {
+		const sortData = [...searchData];
+		switch (sortFormat.sortBy) {
+			case 'id':
+				if (sortFormat.sortDirection === 'asc') {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						return a.id - b.id;
+					});
+				} else {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						return b.id - a.id;
+					});
+				}
+				break;
+			case 'username':
+				if (sortFormat.sortDirection === 'asc') {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						const usernameA = a.username.toLowerCase();
+						const usernameB = b.username.toLowerCase();
+						if (usernameA < usernameB) {
+							return -1;
+						} else if (usernameA > usernameB) {
+							return 1;
+						}
+						return 0;
+					});
+				} else {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						const usernameA = a.username.toLowerCase();
+						const usernameB = b.username.toLowerCase();
+						if (usernameA > usernameB) {
+							return -1;
+						} else if (usernameA < usernameB) {
+							return 1;
+						}
+						return 0;
+					});
+				}
+				break;
+			case 'name':
+				if (sortFormat.sortDirection === 'asc') {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						const nameA = a.name.toLowerCase();
+						const nameB = b.name.toLowerCase();
+						if (nameA < nameB) {
+							return -1;
+						} else if (nameA > nameB) {
+							return 1;
+						}
+						return 0;
+					});
+				} else {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						const nameA = a.name.toLowerCase();
+						const nameB = b.name.toLowerCase();
+						if (nameA > nameB) {
+							return -1;
+						} else if (nameA < nameB) {
+							return 1;
+						}
+						return 0;
+					});
+				}
+				break;
+			case 'age':
+				if (sortFormat.sortDirection === 'asc') {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						return a.age - b.age;
+					});
+				} else {
+					sortData.sort((a: DemoPerson, b: DemoPerson) => {
+						return b.age - a.age;
+					});
+				}
+				break;
+		}
+
+		return sortData;
+	};
+
+	useEffect(() => {
+		setSearchData(data);
+	}, [data]);
+
+	const sortedData = useMemo(() => {
+		return handleSort();
+	}, [searchData, submitFormat]);
+
+	const handleDeleteButton = (id: number) => {
+		if (window.confirm('Are you sure you want to delete this user?')) {
+			deleteRecord(id);
+		}
+	};
+
+	const handleSortBySelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const sortBy = e.target.value.toLowerCase();
+		setSortFormat({ ...sortFormat, sortBy: sortBy });
+	};
+
+	const handleSortDirectionSelection = (e: React.ChangeEvent<HTMLSelectElement>) => {
+		const sortDirection = e.target.value;
+		setSortFormat({ ...sortFormat, sortDirection: sortDirection });
+	};
+
+	const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const input = e.target.value.trim().toLowerCase();
+		if (input === '') {
+			setSearchData(data);
+		} else {
+			const filteredData = searchData.filter((demoPerson) => {
+				if (
+					demoPerson.id.toString().startsWith(input) ||
+					demoPerson.username.toLowerCase().startsWith(input) ||
+					demoPerson.name.toLowerCase().startsWith(input) ||
+					demoPerson.age.toString().startsWith(input)
+				) {
+					return true;
+				}
+				return false;
+			});
+			setSearchData(filteredData);
+		}
+	};
+
+	return (
+		<div data-testid='table' id='table'>
+			<div className='flex justify-between py-4'>
+				<form>
+					<label className='block text-sm font-medium text-slate-700' htmlFor='introToIPA-pageOne-demoPersonSortSelect'>
+						Search:
+					</label>
+					<input
+						className='block rounded-lg border border-gray-300 bg-gray-50 p-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
+						id='introToIPA-pageOne-demoPersonSearchBar'
+						onChange={handleSearchInput}
+						type='search'
+					/>
+				</form>
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						setSubmitFormat({ ...sortFormat });
+					}}
+				>
+					<label className='block text-sm font-medium text-slate-700' htmlFor='introToIPA-pageOne-demoPersonSortSelect'>
+						Sort By:
+					</label>
+					<div className='flex justify-start'>
+						<select
+							className='block border border-gray-300 bg-gray-50'
+							id='introToIPA-pageOne-demoPersonSortSelect'
+							name='sortBySelection'
+							onChange={handleSortBySelection}
+						>
+							{headers.map((header) => (
+								<option key={header} value={header}>
+									{header.toUpperCase()}
+								</option>
+							))}
+						</select>
+						<select
+							className='block appearance-none border border-gray-300 bg-gray-50 p-2 text-sm text-gray-900 focus:border-blue-500 focus:ring-blue-500'
+							id='introToIPA-pageOne-demoPersonSortDirectionSelect'
+							name='sortByDirection'
+							onChange={handleSortDirectionSelection}
+						>
+							<option key='asc' value='asc'>
+								asc
+							</option>
+							<option key='desc' value='desc'>
+								desc
+							</option>
+						</select>
+						<button
+							className='rounded-lg bg-blue-200 px-5 text-center hover:bg-blue-300'
+							id='introToIPA-pageOne-demoPersonSortButton'
+							type='submit'
+						>
+							Sort
+						</button>
+					</div>
+				</form>
+			</div>
+			<table className='table-auto border-2 border-gray-300 bg-slate-50' id='introToIPA-pageOne-demoPersonTable'>
+				<thead>
+					<tr>
+						{headers.map((header) => (
+							<th className='p-4' key={header}>
+								{header.toUpperCase()}
+							</th>
+						))}
+						<th>DELETE</th>
+					</tr>
+				</thead>
+				<tbody>
+					{sortedData.map((person) => (
+						<tr className='border-2 border-gray-300' key={person.id}>
+							<td className={bodyPadding}>{person.id}</td>
+							<td className={bodyPadding}>{person.username}</td>
+							<td className={bodyPadding}>
+								<Link
+									className='font-bold text-blue-600 underline'
+									id='introToIPA-pageOne-demoPersonTable-Link'
+									state={person.id}
+									to={`/Two/${person.id.toString()}`}
+								>
+									{person.name}
+								</Link>
+							</td>
+							<td className={bodyPadding}>{person.age}</td>
+							<td className={bodyPadding}>
+								<button
+									className='rounded-md bg-red-400 p-2 text-white hover:bg-red-500'
+									id='introToIPA-pageOne-demoPersonTable-removeDemoPerson'
+									onClick={() => {
+										handleDeleteButton(person.id);
+									}}
+									type='button'
+								>
+									DELETE
+								</button>
+							</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+		</div>
+	);
+};
